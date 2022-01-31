@@ -1,5 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {interval, Observable, Subscription} from "rxjs";
+import {error} from "protractor";
 
 @Component({
   selector: 'app-home',
@@ -22,12 +23,28 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       setInterval(() => {
         observer.next(count);
+
+        if(count === 5) {
+          observer.complete();
+        }
+
+        if(count > 3) {
+          observer.error(new Error('Count is greater than 3'));
+        }
+
         count++;
       }, 1000)
     });
 
     this.firstObservableSubscription = customIntervalObservable.subscribe(
-      data => console.log(data)
+      data => {
+        console.log(data);
+      }, error => { // si erreur, observable cancel, donc completed jamais appelé
+        console.log(error);
+        alert(error.message);
+      }, () => {
+        console.log('Completed');
+      }
     );
   }
 
